@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
 class CustomElevatedButton extends StatelessWidget {
-  final TextEditingController controller;
+  final Function onPressed;
   final String texto;
 
   const CustomElevatedButton({
-    Key key,
-    @required this.controller,
-    @required this.texto
-  }) : super(key: key);
+    @required this.onPressed,
+    @required this.texto,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +18,7 @@ class CustomElevatedButton extends StatelessWidget {
             shape: StadiumBorder(),
             minimumSize: Size(double.infinity, 55)
         ),
-        onPressed: () {
-          print(this.controller.text);
-        }
+        onPressed: onPressed,
     );
   }
 }

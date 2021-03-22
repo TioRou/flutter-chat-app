@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:chat_app/src/widgets/custom_input.dart';
+import 'package:provider/provider.dart';
 
+import 'package:chat_app/src/helpers/mostrar_alerta.dart';
+import 'package:chat_app/src/widgets/custom_input.dart';
+import 'package:chat_app/src/service/auth_service.dart';
 import 'package:chat_app/src/widgets/custom_label.dart';
 import 'package:chat_app/src/widgets/custom_logo.dart';
 import 'package:chat_app/src/widgets/custom_elevated_button.dart';
@@ -51,36 +54,62 @@ class __FormState extends State<_Form> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final _formKeyRegister = new GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
-      child: Column(
-        children: [
-          CustomInput(
-              icon: Icons.perm_identity,
-              placeholder: 'Nombre Usuario',
-              textController: nameController,
-          ),
-          SizedBox(height: 25),
-          CustomInput(
-              icon: Icons.email_outlined,
-              placeholder: 'Email',
-              textController: emailController,
-              keyboardType: TextInputType.emailAddress
-          ),
-          SizedBox(height: 25),
-          CustomInput(
-            icon: Icons.lock_outline,
-            placeholder: 'Password',
-            textController: passwordController,
-            isPassword: true,
-          ),
-          SizedBox(height: 25),
-          CustomElevatedButton(controller: emailController, texto: 'Registrarse',)
-        ],
+      child: Form(
+        key: _formKeyRegister,
+        child: Column(
+          children: [
+            CustomInput(
+                icon: Icons.perm_identity,
+                placeholder: 'Nombre Usuario',
+                textController: nameController,
+                origen: 'Register',
+            ),
+            SizedBox(height: 25),
+            CustomInput(
+                icon: Icons.email_outlined,
+                placeholder: 'Email',
+                textController: emailController,
+                origen: 'Register',
+                keyboardType: TextInputType.emailAddress
+            ),
+            SizedBox(height: 25),
+            CustomInput(
+              icon: Icons.lock_outline,
+              placeholder: 'Password',
+              textController: passwordController,
+              origen: 'Register',
+              isPassword: true,
+            ),
+            SizedBox(height: 25),
+            CustomElevatedButton(
+              onPressed: authService.registrando ? null : () async {
+                if(_formKeyRegister.currentState.validate()) {
+                  FocusScope.of(context).unfocus();
+                  final registroOK = await authService.register(nameController.text.trim(), emailController.text.trim(), passwordController.text.trim());
+
+                  if (registroOK['ok']) {
+                    // TODO: Conectar a nuestro Socket Server
+
+                    Navigator.pushReplacementNamed(context, 'usuarios');
+                  } else {
+                    mostrarAlerta(context, 'Error Login', registroOK['msg']);
+                  }
+                }
+
+              },
+              texto: 'Registrarse',
+            )
+          ],
+        ),
       ),
     );
   }

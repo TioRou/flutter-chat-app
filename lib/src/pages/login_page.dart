@@ -1,3 +1,5 @@
+import 'package:chat_app/src/helpers/mostrar_alerta.dart';
+import 'package:chat_app/src/service/auth_service.dart';
 import 'package:chat_app/src/widgets/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:chat_app/src/widgets/custom_input.dart';
 import 'package:chat_app/src/widgets/custom_label.dart';
 import 'package:chat_app/src/widgets/custom_logo.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -50,30 +53,53 @@ class _Form extends StatefulWidget {
 class __FormState extends State<_Form> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final _formKeyLogin = new GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
-      child: Column(
-        children: [
-          CustomInput(
-            icon: Icons.email_outlined,
-            placeholder: 'Email',
-            textController: emailController,
-            keyboardType: TextInputType.emailAddress
-          ),
-          SizedBox(height: 25),
-          CustomInput(
-            icon: Icons.lock_outline,
-            placeholder: 'Password',
-            textController: passwordController,
-            isPassword: true,
-          ),
-          SizedBox(height: 25),
-          CustomElevatedButton(controller: emailController, texto: 'Ingresar')
-        ],
+      child: Form(
+        key: _formKeyLogin,
+        child: Column(
+          children: [
+            CustomInput(
+              icon: Icons.email_outlined,
+              placeholder: 'Email',
+              textController: emailController,
+              origen: 'Login',
+              keyboardType: TextInputType.emailAddress
+            ),
+            SizedBox(height: 25),
+            CustomInput(
+              icon: Icons.lock_outline,
+              placeholder: 'Password',
+              textController: passwordController,
+              origen: 'Login',
+              isPassword: true,
+            ),
+            SizedBox(height: 25),
+            CustomElevatedButton(
+              onPressed: authService.autenticando ? null : () async {
+                if(_formKeyLogin.currentState.validate()) {
+                  FocusScope.of(context).unfocus();
+                  final loginOK = await authService.login(emailController.text.trim(), passwordController.text.trim());
+
+                  if (loginOK['ok']) {
+                    // TODO: Conectar a nuestro Socket Server
+
+                    Navigator.pushReplacementNamed(context, 'usuarios');
+                  } else {
+                    mostrarAlerta(context, 'Error Login', loginOK['msg']);
+                  }
+                }
+              },
+              texto: 'Ingresar')
+          ],
+        ),
       ),
     );
   }

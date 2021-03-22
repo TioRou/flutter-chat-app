@@ -1,8 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.chat_app">
+   <uses-permission android:name="android.permission.INTERNET"/>
    <application
+        android:usesCleartextTraffic="true"
         android:label="chat_app"
         android:icon="@mipmap/ic_launcher">
+        <uses-library
+           android:name="org.apache.http.legacy"
+           android:required="false" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
