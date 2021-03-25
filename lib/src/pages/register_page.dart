@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'package:chat_app/src/service/socket_service.dart';
 import 'package:chat_app/src/helpers/mostrar_alerta.dart';
 import 'package:chat_app/src/widgets/custom_input.dart';
 import 'package:chat_app/src/service/auth_service.dart';
@@ -59,6 +60,7 @@ class __FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
     
     return Container(
       margin: EdgeInsets.only(top: 40),
@@ -97,7 +99,7 @@ class __FormState extends State<_Form> {
                   final registroOK = await authService.register(nameController.text.trim(), emailController.text.trim(), passwordController.text.trim());
 
                   if (registroOK['ok']) {
-                    // TODO: Conectar a nuestro Socket Server
+                    socketService.connect();
 
                     Navigator.pushReplacementNamed(context, 'usuarios');
                   } else {

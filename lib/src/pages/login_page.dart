@@ -1,14 +1,15 @@
-import 'package:chat_app/src/helpers/mostrar_alerta.dart';
-import 'package:chat_app/src/service/auth_service.dart';
-import 'package:chat_app/src/widgets/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import 'package:chat_app/src/widgets/custom_elevated_button.dart';
+import 'package:chat_app/src/service/auth_service.dart';
+import 'package:chat_app/src/service/socket_service.dart';
+import 'package:chat_app/src/helpers/mostrar_alerta.dart';
 import 'package:chat_app/src/widgets/custom_input.dart';
 import 'package:chat_app/src/widgets/custom_label.dart';
 import 'package:chat_app/src/widgets/custom_logo.dart';
-import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -58,6 +59,7 @@ class __FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
 
     return Container(
       margin: EdgeInsets.only(top: 40),
@@ -89,7 +91,7 @@ class __FormState extends State<_Form> {
                   final loginOK = await authService.login(emailController.text.trim(), passwordController.text.trim());
 
                   if (loginOK['ok']) {
-                    // TODO: Conectar a nuestro Socket Server
+                    socketService.connect();
 
                     Navigator.pushReplacementNamed(context, 'usuarios');
                   } else {
